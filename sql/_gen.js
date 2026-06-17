@@ -53,20 +53,19 @@ const SPOTS = [
   ["culture","Pindangan Ruins","San Fernando City","Historic Site","Moss-covered stone walls that are the remnants of an 18th-century Spanish church destroyed by a massive earthquake. The tranquil ruins are now a captivating historical site and a popular backdrop for photography.","San Vicente, San Fernando City, 2500 La Union, Philippines","25","6:00 AM - 5:00 PM","N/A","N/A",""]
 ];
 
-// name, town, type, price, rating, about, amenities
+// Real La Union hotels (rates are sample figures). name, town, type, price, rating, about, amenities, image
 const HOTELS = [
-  ["Urbiz Garden Beach Resort","San Juan","Beach Resort",3200,4.6,"Beachfront resort right by the Urbiztondo surf break with a pool, garden rooms, and an on-site cafe. Walking distance to surf schools and night markets.","Pool, Free WiFi, Breakfast, Beachfront, Parking"],
-  ["Vessel Hostel San Juan","San Juan","Hostel",950,4.4,"Budget-friendly surf hostel popular with backpackers. Shared and private rooms, common kitchen, and a rooftop hangout area.","Free WiFi, Shared Kitchen, Lockers, Rooftop"],
-  ["Flotsam & Jetsam Hostel","San Juan","Hostel",1400,4.5,"Iconic artsy beach hostel known for its bonfire nights and live music. A social spot a few steps from the waves.","Bar, Free WiFi, Beachfront, Events"],
-  ["San Juan Surf Resort","San Juan","Resort",2800,4.3,"Long-running surf resort with its own surf school, pool, and the Coast Call restaurant on the beach.","Pool, Restaurant, Surf School, Free WiFi"],
-  ["Kahuna Beach Resort & Spa","San Juan","Resort & Spa",5200,4.7,"Upscale beachfront resort with a full-service spa, infinity pool, and balinese-style villas overlooking the sea.","Spa, Pool, Restaurant, Beachfront, Parking"],
-  ["Thunderbird Resorts Poro Point","San Fernando City","Resort",6500,4.6,"Santorini-inspired hilltop resort at Poro Point with an infinity pool, casino, and panoramic bay views.","Pool, Casino, Restaurant, Sea View, Parking"],
-  ["Hotel Ariana","San Fernando City","Hotel",2400,4.2,"Comfortable mid-range city hotel near the heart of San Fernando, good for business and family stays.","Free WiFi, Restaurant, Function Hall, Parking"],
-  ["Oasis Country Resort","San Fernando City","Resort",3000,4.1,"Garden resort with two pools, a coffee shop, and event spaces along the national highway.","Pool, Restaurant, Free WiFi, Parking"],
-  ["Crescent Beach Resort","Bauang","Beach Resort",2600,4.0,"Relaxed family beach resort in Bauang with cottages, a pool, and a long grey-sand shore for sunsets.","Pool, Beachfront, Restaurant, Parking"],
-  ["Coconut Grove Resort Hotel","Bauang","Resort",2900,4.2,"Quiet beachside resort lined with coconut trees, ideal for a laid-back weekend away from the surf crowd.","Pool, Beachfront, Free WiFi, Breakfast"],
-  ["Agoo Playa Hotel","Agoo","Hotel",2200,3.9,"Beachside hotel in Agoo near the cathedral and plaza, with a pool and event grounds for gatherings.","Pool, Restaurant, Beachfront, Parking"],
-  ["Luna Heritage Inn","Luna","Inn",1600,4.0,"Cozy small-town inn near Pebble Beach and the Baluarte Watch Tower, great base for exploring northern La Union.","Free WiFi, Breakfast, Parking"]
+  ["Puerto de San Juan Beach Resort","San Juan","Beach Resort",4500,4.2,"La Union's tall beachfront condotel in Urbiztondo, with sea-view rooms, a pool, and direct access to the surf.","Pool, Beachfront, Restaurant, Free WiFi, Parking","hotel/puerto.jpeg"],
+  ["Awesome Hotel","San Juan","Beach Resort",6000,4.5,"A modern luxury beach resort right on the Urbiztondo surf break, with a pool, rooftop, and full-service restaurant.","Pool, Beachfront, Restaurant, Bar, Free WiFi","hotel/awesome.png"],
+  ["The Salt Boutique Hotel by Wyns","San Juan","Boutique Hotel",5500,4.6,"An elegant beachfront boutique hotel in Urbiztondo with a sea-view pool, private beach area, and chic modern rooms.","Pool, Beachfront, Sea View, Free WiFi, Breakfast","hotel/salt.webp"],
+  ["Ciabel Hotel and Fitness Center","San Juan","Hotel",3200,4.1,"A comfortable San Juan hotel a short walk from the beach, with an outdoor pool, fitness center, and Filipino restaurant.","Pool, Fitness Center, Restaurant, Free WiFi, Parking","hotel/ciabel.jpg"],
+  ["Patio by Balai Norte","San Juan","Hotel",3500,4.3,"A stylish, family-friendly stay in San Juan with a restaurant, bar, fitness room, and a shuttle to its own private beach.","Restaurant, Bar, Private Beach, Free WiFi, Parking","hotel/patio.jpg"],
+  ["Costa Villa Beach Resort","San Juan","Beach Resort",2800,4.0,"A relaxed beachfront resort in San Juan with cozy rooms, a pool, and an easy walk to the surf and cafes.","Pool, Beachfront, Restaurant, Free WiFi","hotel/villa.webp"],
+  ["Cococay Resort Hotel","Bauang","Resort",2200,3.8,"A laid-back beach resort in Bauang with direct beach access, a restaurant, and free parking, away from the surf crowd.","Beachfront, Restaurant, Free WiFi, Parking","hotel/cococay.jpg"],
+  ["Hotel Ariana","San Fernando City","Hotel",2400,4.2,"A comfortable mid-range city hotel near the heart of San Fernando, good for business and family stays.","Free WiFi, Restaurant, Function Hall, Parking","hotel/hotelariana.jpg"],
+  ["J&V Hotel and Resort","San Fernando City","Resort",2600,4.0,"A quiet San Fernando resort with an outdoor pool, fitness center, and spacious air-conditioned rooms.","Pool, Fitness Center, Spa, Free WiFi, Parking","hotel/jv.jpg"],
+  ["Travelite Hotel","San Juan","Inn",1500,3.9,"A budget-friendly inn in San Juan, a short ride from the beach, popular with surfers and backpackers.","Free WiFi, Breakfast, Parking","hotel/travellite.webp"],
+  ["Hoyrl Hotel","San Juan","Hotel",1800,3.9,"A simple, no-frills hotel in San Juan with clean rooms close to the surf town's cafes and beach.","Free WiFi, Parking, Restaurant","hotel/hoyrl.jpg"]
 ];
 
 // Photo for each spot (uploaded by the group). Keyed by the exact spot name.
@@ -200,18 +199,22 @@ out += "\n-- Tourist spots\n";
 SPOTS.forEach(s => {
   out += `INSERT INTO spots (name, town_id, category, type, about, location, price, hours, phone, email, image) VALUES (${q(s[1])}, ${townId[s[2]]}, ${q(s[0])}, ${q(s[3])}, ${q(s[4])}, ${q(s[5])}, ${q(s[6])}, ${q(s[7])}, ${q(s[8])}, ${q(s[9])}, ${q(s[10])});\n`;
 });
-out += "\n-- Hotels (placeholder rates)\n";
+out += "\n-- Hotels (real La Union hotels, sample rates)\n";
 HOTELS.forEach(h => {
-  out += `INSERT INTO hotels (name, town_id, type, price, rating, about, amenities, image) VALUES (${q(h[0])}, ${townId[h[1]]}, ${q(h[2])}, ${h[3]}, ${h[4]}, ${q(h[5])}, ${q(h[6])}, '');\n`;
+  out += `INSERT INTO hotels (name, town_id, type, price, rating, about, amenities, image) VALUES (${q(h[0])}, ${townId[h[1]]}, ${q(h[2])}, ${h[3]}, ${h[4]}, ${q(h[5])}, ${q(h[6])}, ${q(h[7])});\n`;
 });
 
 fs.writeFileSync(__dirname + "/setup.sql", out);
 
-// Also write just the image updates, to apply photos to an existing database
-// without wiping users/bookings.
+// Also write an apply-script to update an existing database (spot photos +
+// the real hotels) without wiping users/bookings.
 let upd = "USE launion_tour;\n";
 SPOTS.forEach(function (s) {
   if (s[10]) upd += `UPDATE spots SET image = ${q(s[10])} WHERE name = ${q(s[1])};\n`;
+});
+upd += "\nTRUNCATE hotels;\n";
+HOTELS.forEach(function (h) {
+  upd += `INSERT INTO hotels (name, town_id, type, price, rating, about, amenities, image) VALUES (${q(h[0])}, ${townId[h[1]]}, ${q(h[2])}, ${h[3]}, ${h[4]}, ${q(h[5])}, ${q(h[6])}, ${q(h[7])});\n`;
 });
 fs.writeFileSync(__dirname + "/update-images.sql", upd);
 

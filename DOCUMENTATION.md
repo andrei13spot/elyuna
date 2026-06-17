@@ -49,7 +49,7 @@ related activities and stays.
 - "Nearby" suggestions computed from real town coordinates (distance).
 
 **Limitations**
-- Hotel rates and details are **placeholders**; no real payment is processed.
+- Hotels are **real La Union properties**; the nightly **rates are sample figures** and no real payment is processed.
 - No real-time room availability or payment gateway.
 - Admin management of spots/hotels is done directly in the database (no admin UI).
 
