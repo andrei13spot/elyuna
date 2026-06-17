@@ -164,37 +164,41 @@ async function planTour(spotId) {
   const res = await api("api/book-tour.php", "POST", { spotId: spotId, date: date, people: people });
   if (!res.ok) { toast(res.data.error || "Something went wrong."); return; }
 
-  toast("Tour added to My Trips!");
+  toast("Tour booked!");
   // Swap the form for a confirmation so the user can go straight to their
   // trip or simply close - they are never forced to look at the suggestions.
   const s = spotById(spotId);
+  const ref = "ELYU-" + String(res.data.bookingId || 0).padStart(6, "0");
   const box = document.querySelector(".book-box");
   if (box) {
     box.outerHTML =
-      '<div class="book-box"><div class="book-ok"><div class="check">' + ICONS.checkBig + '</div>' +
-      '<h3>Added to your trip</h3>' +
-      '<p>' + escapeHtml(s.name) + ' · ' + formatDate(date) + ' · ' + people + ' person(s)</p>' +
-      '<div class="book-actions">' +
-        '<a href="trips.html" class="btn btn-red">View My Trips</a>' +
-        '<button class="btn btn-ghost" id="laterBtn">Close</button>' +
-      '</div></div></div>';
+      '<div class="book-box"><div class="book-ok">' +
+        '<span class="ok-badge">Confirmed</span>' +
+        '<h3>Tour booked</h3>' +
+        '<p>' + escapeHtml(s.name) + ' · ' + formatDate(date) + '</p>' +
+        '<p class="ok-ref">Booking reference <b>' + ref + '</b></p>' +
+        '<div class="book-actions">' +
+          '<a href="trips.html" class="btn btn-red">View My Trips</a>' +
+          '<button class="btn btn-ghost" id="laterBtn">Close</button>' +
+        '</div>' +
+      '</div></div>';
     document.getElementById("laterBtn").addEventListener("click", closeModal);
   }
   showSuggestions(res.data.suggestions, "You might also like", "Hotels near this spot.");
 }
 
-// Builds the "nearby" list shown after planning a tour (hotels near the spot).
+// Builds the clickable "nearby" list shown after planning a tour (hotels near the spot).
 function showSuggestions(suggestions, title, hint) {
   const area = document.getElementById("suggestArea");
   if (!area || !suggestions || !suggestions.items.length) return;
   const items = suggestions.items.map(function (it) {
     const meta = it.town + " · ₱" + it.price + "/night";
-    return '<div class="suggest-item">' +
+    return '<a class="suggest-item" href="hotels.html?hotel=' + it.id + '">' +
       '<div class="suggest-thumb" style="background:var(--blue)"></div>' +
       '<div class="suggest-meta"><div class="n">' + escapeHtml(it.name) + '</div>' +
         '<div class="d">' + escapeHtml(meta) + '</div></div>' +
       '<div class="suggest-dist">' + distText(it.distanceKm) + '</div>' +
-    '</div>';
+    '</a>';
   }).join("");
   area.innerHTML = '<div class="suggest"><h4>' + title + '</h4>' +
     '<p class="hint">' + hint + '</p>' +

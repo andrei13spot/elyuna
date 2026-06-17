@@ -30,13 +30,14 @@ $stmt = $pdo->prepare(
      VALUES (?, 'hotel', ?, ?, ?, ?, ?, ?, ?, 'confirmed')"
 );
 $stmt->execute([$userId, $hotel["id"], $hotel["name"], $hotel["town"], $checkin, $checkout, $guests, $total]);
+$bookingId = (int)$pdo->lastInsertId(); // grab this before running other queries
 
 // Suggest tourist spots near the hotel.
 $suggestions = ["items" => nearby_spots($pdo, (float)$hotel["lat"], (float)$hotel["lng"], 4)];
 
 json_out([
     "ok" => true,
-    "bookingId" => (int)$pdo->lastInsertId(),
+    "bookingId" => $bookingId,
     "nights" => $nights,
     "total" => $total,
     "suggestions" => $suggestions

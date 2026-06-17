@@ -147,34 +147,38 @@ async function reserveHotel(hotelId) {
   if (!res.ok) { toast(res.data.error || "Booking failed."); return; }
 
   toast("Reservation confirmed!");
+  const ref = "ELYU-" + String(res.data.bookingId || 0).padStart(6, "0");
   const box = document.querySelector(".book-box");
   if (box) {
     box.outerHTML =
-      '<div class="book-box"><div class="book-ok"><div class="check">' + ICONS.checkBig + '</div>' +
-      '<h3>Reservation confirmed</h3>' +
-      '<p>' + res.data.nights + ' night(s) · Total ₱' + res.data.total.toLocaleString() + '</p>' +
-      '<div class="book-actions">' +
-        '<a href="trips.html" class="btn btn-blue">View My Trips</a>' +
-        '<button class="btn btn-ghost" id="laterBtn">Close</button>' +
-      '</div></div></div>';
+      '<div class="book-box"><div class="book-ok">' +
+        '<span class="ok-badge">Confirmed</span>' +
+        '<h3>Reservation confirmed</h3>' +
+        '<p>' + res.data.nights + ' night(s) · Total ₱' + res.data.total.toLocaleString() + '</p>' +
+        '<p class="ok-ref">Booking reference <b>' + ref + '</b></p>' +
+        '<div class="book-actions">' +
+          '<a href="trips.html" class="btn btn-blue">View My Trips</a>' +
+          '<button class="btn btn-ghost" id="laterBtn">Close</button>' +
+        '</div>' +
+      '</div></div>';
     document.getElementById("laterBtn").addEventListener("click", closeModal);
   }
   showSuggestions(res.data.suggestions, "You might also like", "Tourist spots near your hotel.");
 }
 
-// "Nearby" tourist spots shown after a reservation.
+// Clickable "nearby" tourist spots shown after a reservation.
 function showSuggestions(suggestions, title, hint) {
   const area = document.getElementById("suggestArea");
   if (!area || !suggestions || !suggestions.items.length) return;
   const items = suggestions.items.map(function (it) {
     const color = CAT_COLOR[it.category] || "var(--blue)";
     const meta = (it.town || "") + " · " + (it.type || "");
-    return '<div class="suggest-item">' +
+    return '<a class="suggest-item" href="index.html?spot=' + it.id + '">' +
       '<div class="suggest-thumb" style="background:' + color + '"></div>' +
       '<div class="suggest-meta"><div class="n">' + escapeHtml(it.name) + '</div>' +
         '<div class="d">' + escapeHtml(meta) + '</div></div>' +
       '<div class="suggest-dist">' + distText(it.distanceKm) + '</div>' +
-    '</div>';
+    '</a>';
   }).join("");
   area.innerHTML = '<div class="suggest"><h4>' + title + '</h4>' +
     '<p class="hint">' + hint + '</p>' +
