@@ -56,16 +56,34 @@ function openItemModal(type, id) {
     return '<div class="mrow"><span class="k">' + k + '</span><span class="v">' + val + '</span></div>';
   }
 
-  let rows, btn;
+  const today = new Date();
+  const tomorrow = new Date(today.getTime() + 86400000);
+  const fmt = function (d) { return d.toISOString().slice(0, 10); };
+
+  let rows, form;
   if (isHotel) {
-    rows = row("Price", "₱ " + item.price.toLocaleString() + " / night") + row("Rating", item.rating.toFixed(1) + " / 5") +
-           row("Type", item.type) + row("Amenities", item.amenities);
-    btn = '<a href="hotels.html?hotel=' + item.id + '" class="btn btn-blue btn-block" style="margin-top:20px">Reserve now</a>';
+    rows = row("Rating", item.rating.toFixed(1) + " / 5") + row("Type", item.type) + row("Amenities", item.amenities);
+    form =
+      '<div class="book-box"><h4>Reserve your stay</h4>' +
+        '<div class="field-row">' +
+          '<div class="field"><label for="iCi">Check-in</label><input type="date" id="iCi" value="' + fmt(today) + '" min="' + fmt(today) + '" /></div>' +
+          '<div class="field"><label for="iCo">Check-out</label><input type="date" id="iCo" value="' + fmt(tomorrow) + '" min="' + fmt(tomorrow) + '" /></div>' +
+        '</div>' +
+        '<div class="field"><label for="iGs">Guests</label><input type="number" id="iGs" value="2" min="1" max="10" /></div>' +
+        '<div class="book-total"><span>Total</span><span><b id="iTotal"></b></span></div>' +
+        '<button class="btn btn-blue btn-block" id="iBook">Reserve now</button>' +
+      '</div>';
   } else {
     const priceVal = (item.price && item.price !== "N/A") ? (/free/i.test(item.price) ? "Free" : "₱ " + item.price) : "Free / info on site";
-    rows = row("Location", item.location) + row("Price", priceVal) + row("Hours", item.hours) +
-           row("Phone", item.phone, "tel") + row("Email", item.email);
-    btn = '<a href="index.html?spot=' + item.id + '" class="btn btn-red btn-block" style="margin-top:20px">Book tour</a>';
+    rows = row("Location", item.location) + row("Price", priceVal) + row("Hours", item.hours) + row("Phone", item.phone, "tel");
+    form =
+      '<div class="book-box"><h4>Plan a tour</h4>' +
+        '<div class="field-row">' +
+          '<div class="field"><label for="iTd">Date</label><input type="date" id="iTd" value="' + fmt(today) + '" min="' + fmt(today) + '" /></div>' +
+          '<div class="field"><label for="iTp">People</label><input type="number" id="iTp" value="2" min="1" max="20" /></div>' +
+        '</div>' +
+        '<button class="btn btn-red btn-block" id="iBook">Book tour</button>' +
+      '</div>';
   }
 
   document.getElementById("modal").innerHTML =
@@ -75,7 +93,7 @@ function openItemModal(type, id) {
       '<h3>' + escapeHtml(item.name) + '</h3>' +
       '<div class="modal-town">' + escapeHtml(item.town) + ', La Union</div>' +
       (item.about ? '<p class="modal-about">' + escapeHtml(item.about) + '</p>' : '') +
-      '<div class="modal-rows">' + rows + '</div>' + btn +
+      '<div class="modal-rows">' + rows + '</div>' + form +
     '</div>';
 
   const back = document.getElementById("modalBack");
@@ -83,6 +101,62 @@ function openItemModal(type, id) {
   document.body.style.overflow = "hidden";
   document.getElementById("mClose").addEventListener("click", function () {
     back.classList.remove("open");
+    document.body.style.overflow = "";
+  });
+
+  if (isHotel) {
+    const ci = document.getElementById("iCi"), co = document.getElementById("iCo");
+    const total = document.getElementById("iTotal");
+    function nights() { return Math.round((new Date(co.value) - new Date(ci.value)) / 86400000); }
+    function refreshTotal() {
+      const n = nights();
+      total.textContent = n >= 1 ? "₱" + (n * item.price).toLocaleString() + " · " + n + " night" + (n > 1 ? "s" : "") : "Pick valid dates";
+    }
+    ci.addEventListener("change", function () {
+      const next = new Date(ci.value); next.setDate(next.getDate() + 1);
+      const ns = next.toISOString().slice(0, 10);
+      co.min = ns; if (co.value < ns) co.value = ns;
+      refreshTotal();
+    });
+    co.addEventListener("change", refreshTotal);
+    refreshTotal();
+    document.getElementById("iBook").addEventListener("click", async function () {
+      const res = await api("api/book-hotel.php", "POST", { hotelId: item.id, checkin: ci.value, checkout: co.value, guests: parseInt(document.getElementById("iGs").value, 10) || 1 });
+      if (!res.ok) { toast(res.data.error || "Booking failed."); return; }
+      toast("Reservation confirmed!");
+      itemBookingConfirm(item.name, res.data.nights + " night(s) · Total ₱" + res.data.total.toLocaleString(), res.data.bookingId);
+    });
+  } else {
+    document.getElementById("iBook").addEventListener("click", async function () {
+      const date = document.getElementById("iTd").value;
+      if (!date) { toast("Please pick a date."); return; }
+      const res = await api("api/book-tour.php", "POST", { spotId: item.id, date: date, people: parseInt(document.getElementById("iTp").value, 10) || 1 });
+      if (!res.ok) { toast(res.data.error || "Something went wrong."); return; }
+      toast("Tour booked!");
+      itemBookingConfirm(item.name, formatDate(date), res.data.bookingId);
+    });
+  }
+}
+
+// Replaces the booking form with a confirmation (used by openItemModal).
+function itemBookingConfirm(name, detail, bookingId) {
+  const ref = "ELYU-" + String(bookingId || 0).padStart(6, "0");
+  const box = document.querySelector("#modal .book-box");
+  if (!box) return;
+  box.outerHTML =
+    '<div class="book-box"><div class="book-ok">' +
+      '<span class="ok-badge">Confirmed</span>' +
+      '<h3>Booking confirmed</h3>' +
+      '<p>' + escapeHtml(name) + ' · ' + escapeHtml(detail) + '</p>' +
+      '<p class="ok-ref">Booking reference <b>' + ref + '</b></p>' +
+      '<div class="book-actions">' +
+        '<a href="trips.html" class="btn btn-blue">View My Trips</a>' +
+        '<button class="btn btn-ghost" id="iOkClose">Close</button>' +
+      '</div>' +
+    '</div></div>';
+  const close = document.getElementById("iOkClose");
+  if (close) close.addEventListener("click", function () {
+    document.getElementById("modalBack").classList.remove("open");
     document.body.style.overflow = "";
   });
 }

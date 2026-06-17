@@ -125,7 +125,7 @@ function openHotelModal(hotelId) {
           '<div class="field"><label for="checkout">Check-out</label><input type="date" id="checkout" value="' + fmt(tomorrow) + '" min="' + fmt(tomorrow) + '" /></div>' +
         '</div>' +
         '<div class="field"><label for="guests">Guests</label><input type="number" id="guests" value="2" min="1" max="10" /></div>' +
-        '<div class="book-total"><span>Price per night</span><span><b>₱' + h.price.toLocaleString() + '</b></span></div>' +
+        '<div class="book-total"><span>Total <span style="color:var(--muted);font-weight:500">(₱' + h.price.toLocaleString() + '/night)</span></span><span><b id="hTotal"></b></span></div>' +
         '<button class="btn btn-blue btn-block" id="reserveBtn">Reserve now</button>' +
       '</div>' +
       '<div id="suggestArea"></div>' +
@@ -135,15 +135,24 @@ function openHotelModal(hotelId) {
   document.getElementById("mClose").addEventListener("click", closeModal);
   document.getElementById("reserveBtn").addEventListener("click", function () { reserveHotel(h.id); });
 
-  // Keep check-out at least one day after check-in.
-  document.getElementById("checkin").addEventListener("change", function () {
-    const co = document.getElementById("checkout");
+  const checkin = document.getElementById("checkin");
+  const checkout = document.getElementById("checkout");
+  const totalEl = document.getElementById("hTotal");
+  // Show the running total so the user sees the price before confirming.
+  function refreshTotal() {
+    const n = Math.round((new Date(checkout.value) - new Date(checkin.value)) / 86400000);
+    totalEl.textContent = n >= 1 ? "₱" + (n * h.price).toLocaleString() + " · " + n + " night" + (n > 1 ? "s" : "") : "Pick valid dates";
+  }
+  checkin.addEventListener("change", function () {
     const next = new Date(this.value);
     next.setDate(next.getDate() + 1);
     const nextStr = next.toISOString().slice(0, 10);
-    co.min = nextStr;
-    if (co.value < nextStr) co.value = nextStr;
+    checkout.min = nextStr;
+    if (checkout.value < nextStr) checkout.value = nextStr;
+    refreshTotal();
   });
+  checkout.addEventListener("change", refreshTotal);
+  refreshTotal();
 }
 
 async function reserveHotel(hotelId) {
