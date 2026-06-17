@@ -254,8 +254,8 @@ window.addEventListener("load", async function () {
     getItems: function () { return HOTELS; },
     onPick: function (id) { openHotelModal(id); },
     onFilter: function (q) { filterHotels(q); },
-    chips: ["San Juan", "San Fernando City", "Resort", "Hostel", "Bauang"],
-    popular: ["Kahuna Beach Resort & Spa", "Thunderbird Resorts Poro Point", "Flotsam & Jetsam Hostel"]
+    chips: ["San Juan", "San Fernando City", "Beach Resort", "Hotel", "Bauang"],
+    popular: ["Awesome Hotel", "Puerto de San Juan Beach Resort", "The Salt Boutique Hotel by Wyns"]
   });
 
   // If we came from the Hotels nav menu (e.g. hotels.html?q=Resort), pre-filter.

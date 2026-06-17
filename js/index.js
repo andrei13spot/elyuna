@@ -48,7 +48,7 @@ function renderCatalog() {
     // band (a distinct background per category) so the page reads in clear,
     // Apple-style chapters as you scroll.
     html += '<section class="cat-block cat-' + cat.id + '" id="' + cat.id + '">' +
-      '<div class="cat-hero reveal">' +
+      '<div class="cat-hero">' +
         '<div class="l-tag">' + escapeHtml(cat.tag) + '</div>' +
         '<h3>' + escapeHtml(cat.label) + '</h3>' +
         '<p class="cat-sub">' + list.length + ' places to explore</p>' +
@@ -240,18 +240,21 @@ function showSuggestions(suggestions, title, hint) {
 
 // Fade the cards in as they scroll into view.
 function initScrollAnimations() {
-  revealOnScroll(".cat-hero");
   revealOnScroll(".cat-block .card");
 }
 
-// "Where to stay" teaser - a few featured hotels that link to the hotels page.
+// "Where to stay" teaser - a few featured hotels. Clicking one opens it in
+// place (view + book); only the "See all hotels" button leaves the page.
 function renderStayTeaser(hotels) {
   const grid = document.getElementById("stayGrid");
   if (!grid) return;
   const featured = hotels.slice(0, 6);
   grid.innerHTML = featured.map(function (h) {
+    const visual = h.image
+      ? '<img src="' + h.image + '" alt="' + escapeHtml(h.name) + '" loading="lazy"/>'
+      : '<div class="ph" style="background:var(--blue)"></div>';
     return '<article class="card reveal" data-hotel="' + h.id + '" tabindex="0" role="button" aria-label="View ' + escapeHtml(h.name) + '">' +
-      '<div class="card-visual"><div class="ph" style="background:var(--blue)"></div>' +
+      '<div class="card-visual">' + visual +
         '<span class="card-type">' + escapeHtml(h.type) + '</span></div>' +
       '<div class="card-body">' +
         '<h4>' + escapeHtml(h.name) + '</h4>' +
@@ -264,7 +267,7 @@ function renderStayTeaser(hotels) {
       '</div></article>';
   }).join("");
   grid.querySelectorAll(".card").forEach(function (card) {
-    const go = function () { window.location.href = "hotels.html?hotel=" + card.dataset.hotel; };
+    const go = function () { openItemModal("hotel", card.dataset.hotel); };
     card.addEventListener("click", go);
     card.addEventListener("keydown", function (e) {
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); }

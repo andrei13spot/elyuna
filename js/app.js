@@ -13,6 +13,14 @@ async function api(url, method, body) {
 // Keep the logged-in user here once we fetch it.
 let CURRENT_USER = null;
 
+// If nobody is logged in, send them to the login page. Returns true if logged in.
+function requireLoginRedirect() {
+  if (CURRENT_USER) return true;
+  toast("Please log in first.");
+  setTimeout(function () { window.location.href = "login.html"; }, 900);
+  return false;
+}
+
 // Catalog lookups so any page can show a spot/hotel detail without navigating.
 const SPOTS_BY_ID = {};
 const HOTELS_BY_ID = {};
@@ -121,6 +129,7 @@ function openItemModal(type, id) {
     co.addEventListener("change", refreshTotal);
     refreshTotal();
     document.getElementById("iBook").addEventListener("click", async function () {
+      if (!requireLoginRedirect()) return;
       const res = await api("api/book-hotel.php", "POST", { hotelId: item.id, checkin: ci.value, checkout: co.value, guests: parseInt(document.getElementById("iGs").value, 10) || 1 });
       if (!res.ok) { toast(res.data.error || "Booking failed."); return; }
       toast("Reservation confirmed!");
@@ -128,6 +137,7 @@ function openItemModal(type, id) {
     });
   } else {
     document.getElementById("iBook").addEventListener("click", async function () {
+      if (!requireLoginRedirect()) return;
       const date = document.getElementById("iTd").value;
       if (!date) { toast("Please pick a date."); return; }
       const res = await api("api/book-tour.php", "POST", { spotId: item.id, date: date, people: parseInt(document.getElementById("iTp").value, 10) || 1 });
@@ -379,6 +389,13 @@ function setupSearch(opts) {
   input.addEventListener("input", function () { if (opts.onFilter) opts.onFilter(input.value); render(input.value); });
   input.addEventListener("focus", function () { render(input.value); });
   input.addEventListener("blur", function () { setTimeout(function () { drop.classList.remove("open"); }, 150); });
+
+  const btn = document.getElementById("searchBtn");
+  if (btn) btn.addEventListener("click", function () {
+    if (opts.onFilter) opts.onFilter(input.value);
+    drop.classList.remove("open");
+    input.blur();
+  });
 }
 
 // Builds the hover menus under "Tourist Spots" (the 4 categories) and "Hotels"
@@ -395,7 +412,7 @@ function buildNavMenus() {
       ["Beach Resorts", "hotels.html?q=Beach Resort"],
       ["Resorts", "hotels.html?q=Resort"],
       ["Hotels", "hotels.html?q=Hotel"],
-      ["Hostels", "hotels.html?q=Hostel"]
+      ["Inns", "hotels.html?q=Inn"]
     ]
   };
   document.querySelectorAll(".nav-links > a").forEach(function (a) {
