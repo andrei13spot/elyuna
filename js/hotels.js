@@ -188,17 +188,21 @@ function showSuggestions(suggestions, title, hint) {
   const items = suggestions.items.map(function (it) {
     const color = CAT_COLOR[it.category] || "var(--blue)";
     const meta = (it.town || "") + " · " + (it.type || "");
-    return '<a class="suggest-item" href="index.html?spot=' + it.id + '">' +
+    return '<div class="suggest-item" data-sid="' + it.id + '" role="button" tabindex="0">' +
       '<div class="suggest-thumb" style="background:' + color + '"></div>' +
       '<div class="suggest-meta"><div class="n">' + escapeHtml(it.name) + '</div>' +
         '<div class="d">' + escapeHtml(meta) + '</div></div>' +
       '<div class="suggest-dist">' + distText(it.distanceKm) + '</div>' +
-    '</a>';
+    '</div>';
   }).join("");
   area.innerHTML = '<div class="suggest"><h4>' + title + '</h4>' +
     '<p class="hint">' + hint + '</p>' +
     '<div class="suggest-list">' + items + '</div>' +
     '<a href="index.html" class="btn btn-red btn-block" style="margin-top:14px">See all tourist spots</a></div>';
+  // Open the spot's details in place instead of navigating away.
+  area.querySelectorAll(".suggest-item").forEach(function (el) {
+    el.addEventListener("click", function () { openItemModal("spot", el.dataset.sid); });
+  });
   area.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
@@ -230,7 +234,12 @@ window.addEventListener("load", async function () {
 
   const res = await api("api/hotels.php");
   HOTELS = res.data.hotels;
+  HOTELS.forEach(function (h) { HOTELS_BY_ID[h.id] = h; });
   renderHotels();
+
+  // Load spots too so spot suggestions can open in place (no navigation).
+  const spotRes = await api("api/spots.php");
+  (spotRes.data.spots || []).forEach(function (s) { SPOTS_BY_ID[s.id] = s; });
 
   setupSearch({
     getItems: function () { return HOTELS; },

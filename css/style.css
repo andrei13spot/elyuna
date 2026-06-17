@@ -74,11 +74,7 @@ nav {
   font-weight: 800; font-size: 1.2rem; letter-spacing: 1px; color: var(--ink);
   display: flex; align-items: center; gap: 10px;
 }
-.brand .dot {
-  width: 14px; height: 14px; border-radius: 3px;
-  background: var(--grad-brand); box-shadow: 0 0 12px rgba(0,56,168,.35);
-  transform: rotate(45deg); flex: 0 0 auto;
-}
+.brand-logo { width: 28px; height: 28px; flex: 0 0 auto; }
 .brand .b1 { color: var(--blue); }
 .brand .b2 { color: var(--red); }
 .nav-links { display: flex; gap: 22px; align-items: center; }
@@ -353,7 +349,7 @@ section { position: relative; z-index: 2; }
 .suggest h4 { font-size: 1rem; font-weight: 800; margin-bottom: 4px; }
 .suggest p.hint { color: var(--muted); font-size: .85rem; margin-bottom: 14px; }
 .suggest-list { display: grid; gap: 10px; }
-.suggest-item { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid var(--line); border-radius: 12px; transition: border-color .2s; }
+.suggest-item { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid var(--line); border-radius: 12px; transition: border-color .2s; cursor: pointer; }
 .suggest-item:hover { border-color: var(--blue); }
 .suggest-thumb { width: 54px; height: 54px; border-radius: 10px; flex: 0 0 auto; }
 .suggest-meta { flex: 1; min-width: 0; }

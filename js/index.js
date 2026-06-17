@@ -214,17 +214,21 @@ function showSuggestions(suggestions, title, hint) {
   if (!area || !suggestions || !suggestions.items.length) return;
   const items = suggestions.items.map(function (it) {
     const meta = it.town + " · ₱" + it.price + "/night";
-    return '<a class="suggest-item" href="hotels.html?hotel=' + it.id + '">' +
+    return '<div class="suggest-item" data-sid="' + it.id + '" role="button" tabindex="0">' +
       '<div class="suggest-thumb" style="background:var(--blue)"></div>' +
       '<div class="suggest-meta"><div class="n">' + escapeHtml(it.name) + '</div>' +
         '<div class="d">' + escapeHtml(meta) + '</div></div>' +
       '<div class="suggest-dist">' + distText(it.distanceKm) + '</div>' +
-    '</a>';
+    '</div>';
   }).join("");
   area.innerHTML = '<div class="suggest"><h4>' + title + '</h4>' +
     '<p class="hint">' + hint + '</p>' +
     '<div class="suggest-list">' + items + '</div>' +
     '<a href="hotels.html" class="btn btn-blue btn-block" style="margin-top:14px">Browse all hotels</a></div>';
+  // Open the hotel's details in place instead of navigating away.
+  area.querySelectorAll(".suggest-item").forEach(function (el) {
+    el.addEventListener("click", function () { openItemModal("hotel", el.dataset.sid); });
+  });
   area.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
@@ -292,6 +296,7 @@ window.addEventListener("load", async function () {
 
   const res = await api("api/spots.php");
   DATA = res.data;
+  DATA.spots.forEach(function (s) { SPOTS_BY_ID[s.id] = s; }); // for in-place detail popups
   renderCatalog();
 
   setupSearch({
@@ -303,6 +308,7 @@ window.addEventListener("load", async function () {
 
   // featured hotels teaser below the spots
   const hotelRes = await api("api/hotels.php");
+  (hotelRes.data.hotels || []).forEach(function (h) { HOTELS_BY_ID[h.id] = h; }); // so hotel suggestions open in-place
   renderStayTeaser(hotelRes.data.hotels || []);
 
   // If we arrived from a saved item (e.g. /?spot=spot-1), open it right away.

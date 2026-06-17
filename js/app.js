@@ -13,6 +13,79 @@ async function api(url, method, body) {
 // Keep the logged-in user here once we fetch it.
 let CURRENT_USER = null;
 
+// Catalog lookups so any page can show a spot/hotel detail without navigating.
+const SPOTS_BY_ID = {};
+const HOTELS_BY_ID = {};
+
+// The little sailboat logo (used in the nav brand and the favicon).
+const BOAT_SHAPES =
+  '<polygon points="14.5,4 14.5,18 6,18" fill="#0038a8"/>' +
+  '<polygon points="16.5,8 16.5,18 24,18" fill="#ce1126"/>' +
+  '<rect x="14.5" y="4" width="1.4" height="14" rx="0.5" fill="#13203b"/>' +
+  '<path d="M4 20 H28 L24.5 26 Q16 28.5 7.5 26 Z" fill="#13203b"/>';
+
+// Swap the brand square for the boat and set the favicon (runs on every page).
+(function applyBranding() {
+  document.querySelectorAll(".brand .dot").forEach(function (d) {
+    d.outerHTML = '<svg class="brand-logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">' + BOAT_SHAPES + '</svg>';
+  });
+  const fav = document.createElement("link");
+  fav.rel = "icon";
+  fav.type = "image/svg+xml";
+  fav.href = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">' + BOAT_SHAPES + '</svg>');
+  document.head.appendChild(fav);
+})();
+
+// Shows a spot/hotel detail popup on the current page (no page reload), with a
+// single button to actually book it. Used by the "You might also like" list so
+// the user can browse suggestions without bouncing between pages.
+function openItemModal(type, id) {
+  const isHotel = type === "hotel";
+  const item = isHotel ? HOTELS_BY_ID[id] : SPOTS_BY_ID[id];
+  if (!item) { toast("Details are not available right now."); return; }
+  const color = isHotel ? "var(--blue)" : (CAT_COLOR[item.category] || "var(--blue)");
+  const visual = item.image
+    ? '<img src="' + item.image + '" alt="' + escapeHtml(item.name) + '"/>'
+    : '<div class="ph" style="background:' + color + '"></div>';
+
+  function row(k, v, link) {
+    if (!v || v === "N/A") return "";
+    let val = escapeHtml(v);
+    if (link === "tel") val = '<a href="tel:' + String(v).replace(/\s/g, "") + '">' + escapeHtml(v) + '</a>';
+    return '<div class="mrow"><span class="k">' + k + '</span><span class="v">' + val + '</span></div>';
+  }
+
+  let rows, btn;
+  if (isHotel) {
+    rows = row("Price", "₱ " + item.price.toLocaleString() + " / night") + row("Rating", item.rating.toFixed(1) + " / 5") +
+           row("Type", item.type) + row("Amenities", item.amenities);
+    btn = '<a href="hotels.html?hotel=' + item.id + '" class="btn btn-blue btn-block" style="margin-top:20px">Reserve now</a>';
+  } else {
+    const priceVal = (item.price && item.price !== "N/A") ? (/free/i.test(item.price) ? "Free" : "₱ " + item.price) : "Free / info on site";
+    rows = row("Location", item.location) + row("Price", priceVal) + row("Hours", item.hours) +
+           row("Phone", item.phone, "tel") + row("Email", item.email);
+    btn = '<a href="index.html?spot=' + item.id + '" class="btn btn-red btn-block" style="margin-top:20px">Book tour</a>';
+  }
+
+  document.getElementById("modal").innerHTML =
+    '<div class="modal-visual">' + visual + '<button class="modal-close" id="mClose" aria-label="Close">&times;</button></div>' +
+    '<div class="modal-inner">' +
+      '<span class="modal-type">' + escapeHtml(item.type) + '</span>' +
+      '<h3>' + escapeHtml(item.name) + '</h3>' +
+      '<div class="modal-town">' + escapeHtml(item.town) + ', La Union</div>' +
+      (item.about ? '<p class="modal-about">' + escapeHtml(item.about) + '</p>' : '') +
+      '<div class="modal-rows">' + rows + '</div>' + btn +
+    '</div>';
+
+  const back = document.getElementById("modalBack");
+  back.classList.add("open");
+  document.body.style.overflow = "hidden";
+  document.getElementById("mClose").addEventListener("click", function () {
+    back.classList.remove("open");
+    document.body.style.overflow = "";
+  });
+}
+
 async function loadUser() {
   const res = await api("api/me.php");
   CURRENT_USER = res.data.user;
