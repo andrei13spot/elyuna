@@ -1,4 +1,4 @@
-# La Union Tour
+# ELYUNA
 
 A database-driven web application that promotes the province of **La Union, Philippines**.
 Visitors can browse tourist spots, read about each place, sign up / log in, save

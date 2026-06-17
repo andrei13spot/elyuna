@@ -1,4 +1,4 @@
-# La Union Tour — Project Documentation
+# ELYUNA — Project Documentation
 
 **Course:** COMP-20163 (Web Development)
 **Project:** Philippine Tourist Destination Portal
@@ -8,7 +8,7 @@
 
 ## 1. Title Page
 
-**Project Title:** La Union Tour — Online Tour Guide and Booking Portal
+**Project Title:** ELYUNA — Online Tour Guide and Booking Portal
 **Members:** (group members)
 **Instructor:** (instructor)
 **School Year / Term:** A.Y. 2025–2026, 2nd Semester
@@ -21,7 +21,7 @@ La Union is a coastal province in northern Luzon known as the "Surfing Capital o
 the North." Tourists often look for information about where to go, what to do, and
 where to stay, but that information is usually scattered across many sites.
 
-**La Union Tour** is a database-driven web application that gathers La Union's
+**ELYUNA** is a database-driven web application that gathers La Union's
 tourist spots in one place and lets users plan tours and reserve hotels. It also
 suggests nearby places after a booking, similar to how Klook or Agoda recommend
 related activities and stays.
