@@ -54,6 +54,21 @@ function renderHotels() {
   revealCards();
 }
 
+// Real-time search over the hotel cards.
+function filterHotels(query) {
+  const q = query.trim().toLowerCase();
+  let anyVisible = false;
+  document.querySelectorAll("#hotelGrid .card").forEach(function (card) {
+    const h = hotelById(card.dataset.id);
+    const hay = (h.name + " " + h.town + " " + h.type + " " + h.about + " " + h.amenities).toLowerCase();
+    const hit = !q || hay.indexOf(q) !== -1;
+    card.style.display = hit ? "" : "none";
+    if (hit) { card.classList.add("in"); anyVisible = true; }
+  });
+  const noRes = document.getElementById("noResults");
+  if (noRes) noRes.style.display = anyVisible ? "none" : "block";
+}
+
 function revealCards() {
   revealOnScroll("#hotelGrid .card");
 }
@@ -216,6 +231,9 @@ window.addEventListener("load", async function () {
   const res = await api("api/hotels.php");
   HOTELS = res.data.hotels;
   renderHotels();
+
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) searchInput.addEventListener("input", function (e) { filterHotels(e.target.value); });
 
   // If we came from a saved hotel (e.g. /hotels.html?hotel=hotel-1), open it.
   const wanted = new URLSearchParams(window.location.search).get("hotel");

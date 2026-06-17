@@ -34,6 +34,23 @@ launion-tour/
 
 You need **PHP 8+** and **MySQL 8+** installed.
 
+> **Important — PHP must have the MySQL extension enabled.**
+> The app talks to MySQL through PHP's `pdo_mysql` extension. **XAMPP enables it
+> by default**, so if you run it through XAMPP you can skip this. If you use a
+> standalone PHP (e.g. installed with WinGet), open your `php.ini` and make sure
+> these three lines are present and **not** commented out, then restart the server:
+>
+> ```
+> extension_dir = "ext"
+> extension=openssl
+> extension=mysqli
+> extension=pdo_mysql
+> ```
+>
+> Check it with `php -m` — you should see `pdo_mysql` in the list. (If `pdo_mysql`
+> is missing, the page will get stuck on the loading screen because it can't reach
+> the database.)
+
 ### 1. Create the database
 
 Open **MySQL Workbench** (or the MySQL command line) and run the script
@@ -89,10 +106,20 @@ plan a tour or reserve a hotel, then open **My Trips** to see and manage them.
 | `api/cancel-booking.php` | POST | cancel a booking |
 | `api/delete-booking.php` | POST | remove a booking |
 
+## Troubleshooting
+
+- **Stuck on the "Loading ELYUNA" screen / spots never appear.** PHP can't reach the
+  database. Open `http://localhost:8000/api/spots.php` directly — if it shows
+  *"Could not connect to the database"*, then either (a) `pdo_mysql` isn't enabled
+  (see the requirement above), or (b) `sql/setup.sql` hasn't been run, or (c) the
+  credentials in `api/db.php` don't match your MySQL. Fix the cause and refresh.
+- **Run only one server at a time.** Starting a second `php -S` on the same port can
+  cause requests to flicker between working and failing.
+
 ## Notes
 
 - Tourist spot information is real. **Hotel rates and details are sample placeholders.**
-- The home page hero plays `video/launion-hero.mp4` if you add one; otherwise it shows a colored background.
+- The home page hero plays `video/launion-hero.webm` if present; otherwise it shows a colored background. The video is a large local asset and is **not** committed to the repo (kept out by `.gitignore`), so add your own clip to the `video/` folder. Keep it small (ideally under ~10 MB) for fast loading.
 - Full project documentation (objectives, diagrams, data dictionary, testing) is in [`DOCUMENTATION.md`](DOCUMENTATION.md).
 
 ## Data sources

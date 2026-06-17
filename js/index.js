@@ -79,6 +79,27 @@ function renderCatalog() {
   initScrollAnimations();
 }
 
+// Real-time search: hide cards that don't match, and hide empty categories.
+function filterSpots(query) {
+  const q = query.trim().toLowerCase();
+  let anyVisible = false;
+  document.querySelectorAll(".cat-block").forEach(function (block) {
+    if (block.id === "stay") return; // skip the hotel teaser section
+    let blockHas = false;
+    block.querySelectorAll(".card").forEach(function (card) {
+      const s = spotById(card.dataset.id);
+      const hay = (s.name + " " + s.town + " " + s.type + " " + s.about).toLowerCase();
+      const hit = !q || hay.indexOf(q) !== -1;
+      card.style.display = hit ? "" : "none";
+      if (hit) { card.classList.add("in"); blockHas = true; } // .in keeps it visible past the reveal animation
+    });
+    block.style.display = blockHas ? "" : "none";
+    if (blockHas) anyVisible = true;
+  });
+  const noRes = document.getElementById("noResults");
+  if (noRes) noRes.style.display = anyVisible ? "none" : "block";
+}
+
 async function toggleSave(spotId, btn) {
   if (!CURRENT_USER) {
     toast("Please log in to save spots.");
@@ -272,6 +293,9 @@ window.addEventListener("load", async function () {
   const res = await api("api/spots.php");
   DATA = res.data;
   renderCatalog();
+
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) searchInput.addEventListener("input", function (e) { filterSpots(e.target.value); });
 
   // featured hotels teaser below the spots
   const hotelRes = await api("api/hotels.php");

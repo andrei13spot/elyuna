@@ -60,7 +60,7 @@ related activities and stays.
 | Feature | Description |
 |---------|-------------|
 | Tourist spot catalog | Spots grouped by category, with a detail view (location, price, hours, contact). |
-| Search-free browsing | Category sections with photos for beaches and color placeholders elsewhere. |
+| Real-time search | A search box on the spots and hotels pages filters results instantly by name, town, or type. |
 | Authentication | Sign up, log in, log out using PHP sessions and hashed passwords. |
 | Password rules | Min 8 chars, upper, lower, number — shown as a live checklist, plus confirm-password. |
 | Save / favourites | Heart button on cards; a count badge appears in the navigation. |
@@ -79,21 +79,39 @@ graph LR
   Guest((Guest))
   User((Registered User))
 
-  Guest --> UC1[Browse tourist spots]
-  Guest --> UC2[View spot details]
-  Guest --> UC3[Browse hotels]
-  Guest --> UC4[Sign up]
-  Guest --> UC5[Log in]
+  subgraph ELYUNA["ELYUNA System"]
+    UC1[Browse tourist spots]
+    UC2[View spot / hotel details]
+    UC3[Browse hotels]
+    UC13[Search spots / hotels]
+    UC4[Sign up]
+    UC5[Log in]
+    UC6[Save spot / hotel]
+    UC7[Plan a tour]
+    UC8[Reserve a hotel]
+    UC9[View My Trips]
+    UC10[Cancel / remove booking]
+    UC11[Edit profile]
+    UC12[Log out]
+  end
+
+  Guest --> UC1
+  Guest --> UC2
+  Guest --> UC3
+  Guest --> UC13
+  Guest --> UC4
+  Guest --> UC5
 
   User --> UC1
   User --> UC3
-  User --> UC6[Save spot / hotel]
-  User --> UC7[Plan a tour]
-  User --> UC8[Reserve a hotel]
-  User --> UC9[View My Trips]
-  User --> UC10[Cancel / remove booking]
-  User --> UC11[Edit profile]
-  User --> UC12[Log out]
+  User --> UC13
+  User --> UC6
+  User --> UC7
+  User --> UC8
+  User --> UC9
+  User --> UC10
+  User --> UC11
+  User --> UC12
 ```
 
 Guests can browse and must register/log in to save, book, or manage trips.

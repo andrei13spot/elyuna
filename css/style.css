@@ -225,6 +225,13 @@ section { position: relative; z-index: 2; }
 .stat .num { font-weight: 800; font-size: clamp(2.2rem, 6vw, 3.4rem); background: var(--grad-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .stat .lbl { color: var(--muted); letter-spacing: 2px; text-transform: uppercase; font-size: .72rem; font-weight: 600; margin-top: 4px; }
 
+/* search bar */
+.search-sec { padding: 0 0 6px; }
+.searchbar { max-width: 620px; margin: 0 auto; display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 0 6px 0 16px; box-shadow: 0 4px 14px rgba(19,32,59,.05); }
+.searchbar:focus-within { border-color: var(--blue); }
+.searchbar .search-ic { color: var(--muted); flex: 0 0 auto; }
+.searchbar input { flex: 1; border: 0; outline: 0; background: transparent; font-family: inherit; font-size: 1rem; color: var(--ink); padding: 14px 6px; }
+
 .cat-block { padding: clamp(46px, 9vh, 84px) 0; }
 /* alternating section backgrounds so each category feels different on scroll */
 .cat-block.tint-blue { background: #eef2fb; }
