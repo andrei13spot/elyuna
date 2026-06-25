@@ -66,7 +66,7 @@ function openItemModal(type, id) {
 
   const today = new Date();
   const tomorrow = new Date(today.getTime() + 86400000);
-  const fmt = function (d) { return d.toISOString().slice(0, 10); };
+  const fmt = function (d) { return ymd(d); };
 
   let rows, form;
   if (isHotel) {
@@ -131,7 +131,7 @@ function openItemModal(type, id) {
     }
     ci.addEventListener("change", function () {
       const next = new Date(ci.value); next.setDate(next.getDate() + 1);
-      const ns = next.toISOString().slice(0, 10);
+      const ns = ymd(next);
       co.min = ns; if (co.value < ns) co.value = ns;
       refreshTotal();
     });
@@ -545,6 +545,12 @@ function priceText(price) {
   if (!price || price === "N/A") return null;
   if (/free/i.test(price)) return "FREE";
   return "₱" + price;
+}
+
+// format a Date as a local YYYY-MM-DD. avoids the UTC shift from toISOString,
+// which in a UTC+8 timezone defaulted the booking date to yesterday before 8am.
+function ymd(d) {
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
 }
 
 function escapeHtml(str) {

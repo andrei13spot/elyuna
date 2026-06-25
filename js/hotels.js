@@ -70,7 +70,7 @@ function openHotelModal(hotelId) {
 
   const today = new Date();
   const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-  const fmt = function (d) { return d.toISOString().slice(0, 10); };
+  const fmt = function (d) { return ymd(d); };
 
   const amenities = h.amenities.split(",").map(function (a) {
     return '<span style="display:inline-block;background:var(--bg-soft);border:1px solid var(--line);' +
@@ -128,7 +128,7 @@ function openHotelModal(hotelId) {
   checkin.addEventListener("change", function () {
     const next = new Date(this.value);
     next.setDate(next.getDate() + 1);
-    const nextStr = next.toISOString().slice(0, 10);
+    const nextStr = ymd(next);
     checkout.min = nextStr;
     if (checkout.value < nextStr) checkout.value = nextStr;
     refreshTotal();
