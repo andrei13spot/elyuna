@@ -5,6 +5,9 @@
 session_start();
 header("Content-Type: application/json; charset=utf-8");
 
+// use philippine time so server-side date checks match the user's local date.
+date_default_timezone_set("Asia/Manila");
+
 // database settings. These match the dedicated user created by sql/setup.sql.
 $DB_HOST = "127.0.0.1";
 $DB_NAME = "launion_tour";
@@ -53,7 +56,7 @@ function require_login() {
 // password rules (same as the front-end checklist). Returns what's missing.
 function password_problems($pw) {
     $missing = [];
-    if (strlen($pw) < 8) $missing[] = "at least 8 characters";
+    if (strlen($pw) < 3) $missing[] = "at least 3 characters";
     if (!preg_match('/[A-Z]/', $pw)) $missing[] = "an uppercase letter";
     if (!preg_match('/[a-z]/', $pw)) $missing[] = "a lowercase letter";
     if (!preg_match('/[0-9]/', $pw)) $missing[] = "a number";

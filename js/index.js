@@ -125,7 +125,7 @@ function detailRow(key, value, link) {
 function openSpotModal(spotId) {
   const s = spotById(spotId);
   if (!s) return;
-  const todayStr = new Date().toISOString().slice(0, 10); // so tours can't be booked in the past
+  const todayStr = ymd(new Date()); // so tours can't be booked in the past
   const visual = s.image
     ? '<img src="' + s.image + '" alt="' + escapeHtml(s.name) + '"/>'
     : '<div class="ph" style="' + phStyle(s.category) + '"></div>';
